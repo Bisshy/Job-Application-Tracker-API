@@ -1,5 +1,6 @@
 import express from "express";
 import "dotenv/config";
+import connectDB from "./config/db.js";
 
 import router from "./routes/applicationRoutes.js";
 import errorHandler from "./middleware/errorHandler.js";
@@ -26,6 +27,11 @@ application.get("/test-error", (req, res, next) => {
 
 application.use(errorHandler);
 
-application.listen(port, () => {
-  console.log(`server is running at port ${port}`);
-});
+const startServer = async () => {
+  await connectDB();
+  application.listen(port, () => {
+    console.log(`server is running at port ${port}`);
+  });
+};
+
+startServer();
