@@ -1,13 +1,15 @@
-import applications from "../data/applications.js";
-import isValidApplication from "../utils/validation.js";
-import { randomUUID } from "node:crypto";
+import Application from "../models/Application.js";
 
-function getApplications(req, res) {
-  res.status(200).json(applications);
+import isValidApplication from "../utils/validation.js";
+
+async function getApplications(req, res) {
+  const allApplications = await Application.find();
+  res.status(200).json(allApplications);
 }
 
-function createApplication(req, res) {
-  const { companyName, jobTitle, location } = req.body;
+async function createApplication(req, res) {
+  const { companyName, jobTitle, location, status, salary, notes, isRemote } =
+    req.body;
   if (!isValidApplication(req.body)) {
     res.status(400).json({
       message: "companyName, jobTitle and location must be non-empty strings",
@@ -15,15 +17,16 @@ function createApplication(req, res) {
     return;
   }
 
-  const id = randomUUID();
+  const newApplication = await Application.create({
+    companyName,
+    jobTitle,
+    location,
+    salary,
+    status,
+    notes,
+    isRemote,
+  });
 
-  const newApplication = {
-    id,
-    companyName: companyName.trim(),
-    jobTitle: jobTitle.trim(),
-    location: location.trim(),
-  };
-  applications.push(newApplication);
   res.status(201).json({ message: "success", newApplication });
 }
 
